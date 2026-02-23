@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wanneer ben ik jarig?</title>
+  <meta name="description" content="Aftellen naar 03 maart — elk jaar automatisch. Geboren in 1999." />
+  <meta name="theme-color" content="#0ea5e9">
+  <style>
+    :root{
+      --bg1:#0ea5e9; /* sky-500 */
+      --bg2:#8b5cf6; /* violet-500 */
+      --card:#0b1020ee; /* translucent dark */
+      --text:#f8fafc; /* slate-50 */
+      --muted:#cbd5e1; /* slate-300 */
+      --accent:#22d3ee; /* cyan-400 */
+      --success:#22c55e; /* green-500 */
+      --warning:#fde047; /* yellow-400 */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font:16px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background: radial-gradient(1200px 800px at 20% 10%, #1e293b66 0%, transparent 60%),
+                  radial-gradient(1000px 700px at 80% 80%, #0b132a66 0%, transparent 60%),
+                  linear-gradient(120deg, var(--bg1), var(--bg2));
+      min-height:100vh;
+      display:grid; place-items:center;
+      overflow-x:hidden;
+    }
+
+    /* subtle animated gradient shimmer */
+    @keyframes hue {
+      0%{ filter:hue-rotate(0deg) saturate(1.1); }
+      100%{ filter:hue-rotate(360deg) saturate(1.1); }
+    }
+    body{ animation:hue 30s linear infinite; }
+
+    .wrap{
+      width:min(920px, 92vw);
+      display:grid; gap:1.25rem;
+    }
+
+    .card{
+      background:var(--card);
+      backdrop-filter: blur(8px) saturate(1.2);
+      border:1px solid #ffffff22;
+      border-radius:22px;
+      padding: clamp(1rem, 4vw, 2rem);
+      box-shadow: 0 20px 50px #0007, inset 0 1px 0 #fff2;
+    }
+
+    header{display:flex; align-items:center; justify-content:space-between; gap:1rem;}
+    h1{margin:0; font-size:clamp(1.5rem, 2.8vw, 2.2rem); letter-spacing:0.2px}
+    .tag{
+      font-size:.85rem; color:#0b1726; background:linear-gradient(90deg, var(--warning), var(--accent));
+      padding:.4rem .7rem; border-radius:999px; font-weight:700; box-shadow:0 1px 0 #0004 inset;
+    }
+
+    .grid{display:grid; gap:1rem; grid-template-columns: repeat( auto-fit, minmax(220px, 1fr) );}
+
+    .tile{
+      background:#0b132a66; border:1px solid #ffffff1a; border-radius:18px;
+      padding:1rem; text-align:center;
+    }
+    .tile strong{
+      display:block;
+      font-size:clamp(2rem, 6vw, 3.2rem);
+      line-height:1;
+      letter-spacing:1px;
+      max-width:100%;
+      overflow-wrap:anywhere;
+      word-break:break-word;
+    }
+    .tile span{display:block; color:var(--muted); margin-top:.25rem}
+
+    /* maak de geboortedatum flexibeler */
+    #birthdate{
+      font-size: clamp(1rem, 5.5vw, 2.2rem);
+      letter-spacing: 0.5px;
+    }
+    @media (max-width: 420px){
+      #birthdate{ font-size: clamp(0.95rem, 6vw, 2rem); }
+    }
+
+    .big{
+      font-size:clamp(1.2rem, 2.2vw, 1.4rem); color:var(--muted);
+    }
+
+    footer{opacity:.85; display:flex; flex-wrap:wrap; gap:.5rem 1rem; align-items:center; justify-content:space-between}
+    footer a{color:inherit; opacity:.8}
+
+    .celebrate{ color:var(--success); font-weight:800 }
+
+    /* Confetti */
+    .confetti{ position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:10 }
+    .confetti i{
+      position:absolute; width:8px; height:14px; border-radius:2px;
+      opacity:.9; transform:translateY(-100vh) rotate(0deg);
+      animation: fall linear forwards; will-change:transform;
+    }
+    @keyframes fall{
+      to{ transform: translateY(110vh) rotate(720deg); }
+    }
+
+    /* Progress ring */
+    .ring{ width:92px; height:92px; position:relative }
+    .ring svg{ transform:rotate(-90deg) }
+    .ring .lbl{ position:absolute; inset:0; display:grid; place-items:center; font-weight:700 }
+
+    .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
+  </style>
+</head>
+<body>
+  <div class="confetti" aria-hidden="true" hidden></div>
+
+  <main class="wrap card" role="main">
+    <header>
+      <h1>Wanneer ben ik jarig?</h1>
+      <div class="ring" aria-hidden="true">
+        <svg viewBox="0 0 100 100" width="92" height="92">
+          <circle cx="50" cy="50" r="44" stroke="#ffffff22" stroke-width="10" fill="none"/>
+          <circle id="ringProgress" cx="50" cy="50" r="44" stroke="url(#g)" stroke-width="10" stroke-linecap="round" fill="none" stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#22d3ee"/>
+              <stop offset="100%" stop-color="#fde047"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="lbl" id="pct">0%</div>
+      </div>
+    </header>
+
+    <p id="status" class="big">Aftellen tot <strong>03 maart</strong>…</p>
+
+    <section class="grid" aria-label="Countdown">
+      <div class="tile"><strong id="days">–</strong><span>dagen</span></div>
+      <div class="tile"><strong id="hours">–</strong><span>uren</span></div>
+      <div class="tile"><strong id="minutes">–</strong><span>minuten</span></div>
+      <div class="tile"><strong id="seconds">–</strong><span>seconden</span></div>
+    </section>
+
+    <section class="grid" aria-label="Leeftijd">
+      <div class="tile">
+        <strong id="ageNow">–</strong>
+        <span>Leeftijd nu</span>
+      </div>
+      <div class="tile">
+        <strong id="ageNext">–</strong>
+        <span>Op de volgende verjaardag word ik</span>
+      </div>
+      <div class="tile">
+        <strong id="birthdate">03-03-1999</strong>
+        <span>Geboortedatum</span>
+      </div>
+    </section>
+
+    <footer>
+      <div>
+        <span class="sr-only">Informatie:</span>
+        <small>De timer reset automatisch elk jaar na 03 maart.</small>
+      </div>
+      <small>© <span id="year">—</span> wanneerbenikjarig.nl</small>
+    </footer>
+  </main>
+
+  <script>
+  // --- Config ---
+  const BIRTH_YEAR = 1999;
+  const BDAY_MONTH = 2; // 0=Jan → 2=Maart
+  const BDAY_DAY   = 3;
+
+  const $ = (id)=>document.getElementById(id);
+  const el = {
+    days: $('days'), hours: $('hours'), minutes: $('minutes'), seconds: $('seconds'),
+    status: $('status'), ageNow: $('ageNow'), ageNext: $('ageNext'), year: $('year'),
+    ring: document.querySelector('#ringProgress'), pct: $('pct'), confetti: document.querySelector('.confetti')
+  };
+
+  function isBirthday(d){
+    return d.getMonth()===BDAY_MONTH && d.getDate()===BDAY_DAY;
+  }
+
+  function birthdayOfYear(year){
+    // Countdown target = 00:00:00 lokale tijd op 3 maart van het doeljaar
+    return new Date(year, BDAY_MONTH, BDAY_DAY, 0, 0, 0, 0);
+  }
+
+  function nextBirthday(now){
+    const thisYear = now.getFullYear();
+    let target = birthdayOfYear(thisYear);
+    if(now >= endOfBirthdayDay(thisYear)){
+      target = birthdayOfYear(thisYear+1);
+    }
+    return target;
+  }
+
+  function endOfBirthdayDay(year){
+    // 23:59:59.999 op 3 maart → dan schuift het volgend jaar in
+    return new Date(year, BDAY_MONTH, BDAY_DAY, 23, 59, 59, 999);
+  }
+
+  function currentAge(now){
+    const y = now.getFullYear();
+    const hadBirthday = now >= endOfBirthdayDay(y);
+    const onBirthdayToday = isBirthday(now) && now <= endOfBirthdayDay(y);
+    // Als het vandaag 3 maart is, dan leeftijd = y - 1999
+    if(onBirthdayToday) return y - BIRTH_YEAR;
+    // Als we 3 maart dit jaar nog niet voorbij zijn, is leeftijd nog vorig jaar
+    const target = birthdayOfYear(y);
+    return (now < target) ? (y - BIRTH_YEAR - 1) : (y - BIRTH_YEAR);
+  }
+
+  function ageOnNextBirthday(now){
+    const n = nextBirthday(now).getFullYear();
+    return n - BIRTH_YEAR;
+  }
+
+  function format2(n){ return String(n).padStart(2,'0'); }
+
+  function update(){
+    const now = new Date();
+    const tgt = nextBirthday(now);
+
+    // Celebration state
+    const todayIsBirthday = isBirthday(now) && now <= endOfBirthdayDay(now.getFullYear());
+    toggleConfetti(todayIsBirthday);
+
+    // Status text
+    if(todayIsBirthday){
+      el.status.innerHTML = `Het is <strong class="celebrate">3 maart</strong> — gefeliciteerd!`;
+    } else {
+      el.status.innerHTML = `Aftellen tot <strong>03 maart</strong>…`;
+    }
+
+    // Countdown
+    let diff = tgt - now; // ms
+    if (diff < 0) diff = 0; // safety
+    const sec = Math.floor(diff/1000)%60;
+    const min = Math.floor(diff/1000/60)%60;
+    const hr  = Math.floor(diff/1000/60/60)%24;
+    const day = Math.floor(diff/1000/60/60/24);
+
+    el.days.textContent = day;
+    el.hours.textContent = format2(hr);
+    el.minutes.textContent = format2(min);
+    el.seconds.textContent = format2(sec);
+
+    // Ages
+    el.ageNow.textContent = currentAge(now);
+    el.ageNext.textContent = ageOnNextBirthday(now);
+
+    // Progress ring: percentage van jaar tussen vorige en komende verjaardag
+    const prev = birthdayOfYear(tgt.getFullYear()-1);
+    const yearSpan = tgt - prev;
+    const done = now - prev;
+    const pct = Math.max(0, Math.min(1, done / yearSpan));
+    const CIRC = 2*Math.PI*44; // r=44
+    el.ring.style.strokeDasharray = CIRC.toFixed(2);
+    el.ring.style.strokeDashoffset = (CIRC * (1 - pct)).toFixed(2);
+    el.pct.textContent = Math.round(pct*100) + '%';
+
+    // Footer year
+    el.year.textContent = new Date().getFullYear();
+  }
+
+  // Lightweight confetti without external libs
+  function toggleConfetti(on){
+    const c = el.confetti;
+    if(on && c.childElementCount === 0){
+      c.hidden = false;
+      const N = 150; // number of pieces
+      const colors = ['#fde047','#22d3ee','#f472b6','#34d399','#60a5fa','#fb7185'];
+      for(let i=0;i<N;i++){
+        const piece = document.createElement('i');
+        piece.style.left = Math.random()*100 + 'vw';
+        piece.style.background = colors[i % colors.length];
+        piece.style.animationDuration = (6 + Math.random()*6) + 's';
+        piece.style.animationDelay = (-Math.random()*6) + 's';
+        piece.style.transform = `translateY(${-100 - Math.random()*100}vh) rotate(${Math.random()*360}deg)`;
+        c.appendChild(piece);
+      }
+    }
+    if(!on && !c.hidden){
+      c.hidden = true;
+      c.innerHTML = '';
+    }
+  }
+
+  // Kickoff
+  update();
+  setInterval(update, 1000);
+
+  // Respect prefers-reduced-motion
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if(mq.matches){
+    document.body.style.animation = 'none';
+  }
+  </script>
+</body>
+</html>
