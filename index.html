@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Wanneer ben ik jarig?</title>
-  <meta name="description" content="Aftellen naar 3 maart — elk jaar automatisch. Geboren in 1999." />
+  <meta name="description" content="Aftellen naar 03 maart — elk jaar automatisch. Geboren in 1999." />
   <meta name="theme-color" content="#0ea5e9">
   <style>
     :root{
@@ -18,7 +18,6 @@
       --warning:#fde047; /* yellow-400 */
     }
     *{box-sizing:border-box}
-    [hidden]{display:none!important}
     html,body{height:100%}
     body{
       margin:0; font:16px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
@@ -53,8 +52,7 @@
     }
 
     header{display:flex; align-items:center; justify-content:space-between; gap:1rem;}
-    h1{margin:0; font:800 clamp(1.5rem, 2.8vw, 2.2rem)/1.15 "Trebuchet MS", system-ui, sans-serif; letter-spacing:0.2px}
-    .balloon{color:var(--warning); display:inline-block; margin-right:.35rem; transform:rotate(-12deg)}
+    h1{margin:0; font-size:clamp(1.5rem, 2.8vw, 2.2rem); letter-spacing:0.2px}
     .tag{
       font-size:.85rem; color:#0b1726; background:linear-gradient(90deg, var(--warning), var(--accent));
       padding:.4rem .7rem; border-radius:999px; font-weight:700; box-shadow:0 1px 0 #0004 inset;
@@ -112,11 +110,6 @@
     .ring .lbl{ position:absolute; inset:0; display:grid; place-items:center; font-weight:700 }
 
     .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
-
-    @media (prefers-reduced-motion: reduce){
-      body{animation:none}
-      .confetti{display:none}
-    }
   </style>
 </head>
 <body>
@@ -124,7 +117,7 @@
 
   <main class="wrap card" role="main">
     <header>
-      <h1><span class="balloon" aria-hidden="true">🎈</span>Wanneer ben ik jarig?</h1>
+      <h1>Wanneer ben ik jarig?</h1>
       <div class="ring" aria-hidden="true">
         <svg viewBox="0 0 100 100" width="92" height="92">
           <circle cx="50" cy="50" r="44" stroke="#ffffff22" stroke-width="10" fill="none"/>
@@ -140,9 +133,9 @@
       </div>
     </header>
 
-    <p id="status" class="big">Aftellen tot <strong>3 maart</strong>…</p>
+    <p id="status" class="big">Aftellen tot <strong>03 maart</strong>…</p>
 
-    <section id="countdown" class="grid" aria-label="Aftellen tot mijn verjaardag">
+    <section class="grid" aria-label="Countdown">
       <div class="tile"><strong id="days">–</strong><span>dagen</span></div>
       <div class="tile"><strong id="hours">–</strong><span>uren</span></div>
       <div class="tile"><strong id="minutes">–</strong><span>minuten</span></div>
@@ -155,6 +148,10 @@
         <span>Leeftijd nu</span>
       </div>
       <div class="tile">
+        <strong id="ageNext">–</strong>
+        <span>Op de volgende verjaardag word ik</span>
+      </div>
+      <div class="tile">
         <strong id="birthdate">03-03-1999</strong>
         <span>Geboortedatum</span>
       </div>
@@ -163,7 +160,7 @@
     <footer>
       <div>
         <span class="sr-only">Informatie:</span>
-        <small>De timer reset automatisch elk jaar na 3 maart.</small>
+        <small>De timer reset automatisch elk jaar na 03 maart.</small>
       </div>
       <small>© <span id="year">—</span> wanneerbenikjarig.nl</small>
     </footer>
@@ -178,7 +175,7 @@
   const $ = (id)=>document.getElementById(id);
   const el = {
     days: $('days'), hours: $('hours'), minutes: $('minutes'), seconds: $('seconds'),
-    status: $('status'), countdown: $('countdown'), ageNow: $('ageNow'), year: $('year'),
+    status: $('status'), ageNow: $('ageNow'), ageNext: $('ageNext'), year: $('year'),
     ring: document.querySelector('#ringProgress'), pct: $('pct'), confetti: document.querySelector('.confetti')
   };
 
@@ -207,12 +204,18 @@
 
   function currentAge(now){
     const y = now.getFullYear();
+    const hadBirthday = now >= endOfBirthdayDay(y);
     const onBirthdayToday = isBirthday(now) && now <= endOfBirthdayDay(y);
     // Als het vandaag 3 maart is, dan leeftijd = y - 1999
     if(onBirthdayToday) return y - BIRTH_YEAR;
     // Als we 3 maart dit jaar nog niet voorbij zijn, is leeftijd nog vorig jaar
     const target = birthdayOfYear(y);
     return (now < target) ? (y - BIRTH_YEAR - 1) : (y - BIRTH_YEAR);
+  }
+
+  function ageOnNextBirthday(now){
+    const n = nextBirthday(now).getFullYear();
+    return n - BIRTH_YEAR;
   }
 
   function format2(n){ return String(n).padStart(2,'0'); }
@@ -226,11 +229,10 @@
     toggleConfetti(todayIsBirthday);
 
     // Status text
-    el.countdown.hidden = todayIsBirthday;
     if(todayIsBirthday){
-      el.status.innerHTML = `Het is <strong class="celebrate">3 maart</strong> — gefeliciteerd! 🎉`;
+      el.status.innerHTML = `Het is <strong class="celebrate">3 maart</strong> — gefeliciteerd!`;
     } else {
-      el.status.innerHTML = `Aftellen tot <strong>3 maart</strong>…`;
+      el.status.innerHTML = `Aftellen tot <strong>03 maart</strong>…`;
     }
 
     // Countdown
@@ -248,6 +250,7 @@
 
     // Ages
     el.ageNow.textContent = currentAge(now);
+    el.ageNext.textContent = ageOnNextBirthday(now);
 
     // Progress ring: percentage van jaar tussen vorige en komende verjaardag
     const prev = birthdayOfYear(tgt.getFullYear()-1);
